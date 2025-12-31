@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-# This script is used to setup containers used for Codex task environments when work with Codex via a web browser
-git config --global credential.helper store
+# Codex secret (only available during setup)
+: "${GITHUB_TOKEN:?missing GITHUB_TOKEN}"
 
-echo "https://git:$GITHUB_TOKEN@github.com" > ~/.git-credentials
+# Avoid interactive auth prompts
+export GIT_TERMINAL_PROMPT=0
 
+# Scope auth to github.com only (so Poetry's git fetches work)
+git config --global url."https://git:${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
+
+# Your existing steps
 repository-setup/rehome-repository
-
 development/setup-environment
