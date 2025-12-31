@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "<package name>"
-description = "<package description>"
+name = "automojo-restclient-base"
+description = "Automation Mojo - Rest Client Base"
 version = "0.0.1"
 authors = []
 readme = "README.rst"
@@ -13,10 +13,15 @@ classifiers = [
 keywords = [
     "python"
 ]
-packages = [{include="mojo", from="source/packages"}]
+packages = [{include="automojo", from="source/packages"}]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
+pyyaml = "^6.0.3"
+requests = "^2.32.5"
+automojo-errors = { git = "https://github.com/automationmojo/automojo-errors.git", branch = "main" }
+automojo-credentials = { git = "https://github.com/automationmojo/automojo-credentials.git", branch = "main" }
+
 
 [tool.poetry.group.dev.dependencies]
 
