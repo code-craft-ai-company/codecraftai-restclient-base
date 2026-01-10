@@ -96,6 +96,7 @@ class AspectsRest:
             :param logger: Logger to use for messages.
             :param session: Requests session to reuse.
         """
+        object.__setattr__(self, "__frozen__", False)
         
         self.action_pattern=action_pattern
         self.completion_timeout=completion_timeout
@@ -110,6 +111,17 @@ class AspectsRest:
         self.must_connect=must_connect
         self.logger=logger
         self.session = session
+
+        object.__setattr__(self, "__frozen__", True)
+        return
+
+    def __setattr__(self, name, value):
+        # If the '__frozen__' flag exists and is True, block all changes
+        if getattr(self, "__frozen__", False):
+            raise AttributeError(f"Aspects objects cannot be modified after initialization. name={name}")
+        
+        # Otherwise, allow the assignment
+        object.__setattr__(self, name, value)
         return
 
 
