@@ -83,6 +83,15 @@ class PreCannedRequest(Generic[CT]):
 
         return result
 
+    @property
+    def leaf(self) -> str:
+        """
+            API leaf path for the stored call.
+
+            :returns: Leaf path string.
+        """
+        return self._leaf
+
 
 class Paging:
     """
@@ -247,7 +256,7 @@ class ItemsResult(Generic[CT]):
 
         result = None
 
-        if self._paging.request_next is not None:
+        if self._paging is not None and self._paging.request_next is not None:
             result = self._paging.request_next.perform_call()
 
         return result
@@ -259,7 +268,7 @@ class ItemsResult(Generic[CT]):
 
         result = None
 
-        if self._paging.request_prev is not None:
+        if self._paging is not None and self._paging.request_prev is not None:
             result = self._paging.request_prev.perform_call()
 
         return result

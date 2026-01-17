@@ -90,8 +90,11 @@ def test_itemsresult_next_prev_page_result():
         prev_called["count"] += 1
         return _ResponseStub()
 
-    def package_result(resp):
-        return ItemsResult(["next"]) if next_called["count"] else ItemsResult(["prev"])
+    def package_result_next(resp):
+        return ItemsResult(["next"])
+
+    def package_result_prev(resp):
+        return ItemsResult(["prev"])
 
     request_next = PreCannedRequest(
         leaf="/items?page=2",
@@ -101,7 +104,7 @@ def test_itemsresult_next_prev_page_result():
         exp_status=200,
         aspects=None,
         perform_call=perform_next,
-        package_result=package_result,
+        package_result=package_result_next,
     )
     request_prev = PreCannedRequest(
         leaf="/items?page=0",
@@ -111,7 +114,7 @@ def test_itemsresult_next_prev_page_result():
         exp_status=200,
         aspects=None,
         perform_call=perform_prev,
-        package_result=package_result,
+        package_result=package_result_prev,
     )
     paging = Paging(
         page=1,

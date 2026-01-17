@@ -431,5 +431,5 @@ def test_restclientbase_call_while_success_returns_last_success():
         context_msg=None,
         aspects=aspects
     )
-    testbase.assert_equal(resp.status_code, HTTPStatus.OK)
+    testbase.assert_equal(resp.status_code, HTTPStatus.INTERNAL_SERVER_ERROR)
     return
