@@ -1,6 +1,6 @@
 import logging
 
-import testbase
+from automojo import testbase
 
 from automojo.restclient.base.aspectsrest import (
     ActionPattern,

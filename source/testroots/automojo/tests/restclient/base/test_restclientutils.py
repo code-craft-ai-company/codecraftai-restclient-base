@@ -1,6 +1,6 @@
 import dataclasses
 
-import testbase
+from automojo import testbase
 
 from automojo.restclient.base.restclientutils import convert_to_foundation_datatype
 from automojo.restclient.base.restclientutils import normalize_query_arg_value

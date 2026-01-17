@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-import testbase
+from automojo import testbase
 
 from automojo.errors.exceptions import HttpForbiddenError
 from automojo.restclient.base.aspectsrest import ActionPattern, AspectsRest

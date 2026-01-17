@@ -1,4 +1,4 @@
-import testbase
+from automojo import testbase
 
 from automojo.restclient.base.restapigroup import RestApiGroup
 
