@@ -21,6 +21,7 @@ pyyaml = "^6.0.3"
 requests = "^2.32.5"
 automojo-errors = { git = "https://github.com/automationmojo/automojo-errors.git", branch = "main" }
 automojo-credentials = { git = "https://github.com/automationmojo/automojo-credentials.git", branch = "main" }
+automojo-testbase = { git = "https://github.com/automationmojo/automojo-testbase.git", branch = "main" }
 
 
 [tool.poetry.group.dev.dependencies]
