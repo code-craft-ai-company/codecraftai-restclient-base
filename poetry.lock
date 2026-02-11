@@ -26,7 +26,7 @@ pymongo = ["pymongo (>=4.13.2,<5.0.0)"]
 type = "git"
 url = "https://github.com/automationmojo/automojo-configuration.git"
 reference = "main"
-resolved_reference = "b8a56146615d6930b8dcc4c97ecfe9c6b12954f0"
+resolved_reference = "47629ae2987f7fdc8a701f7bb8177096b8f65bcb"
 
 [[package]]
 name = "automojo-credentials"
@@ -47,7 +47,7 @@ automojo-this-app = {git = "https://github.com/automationmojo/automojo-this-app.
 type = "git"
 url = "https://github.com/automationmojo/automojo-credentials.git"
 reference = "main"
-resolved_reference = "2c88a329698f2cf120fb802fb255558f08d49768"
+resolved_reference = "67fbbf368c49dd336464993d2360bd31609dbfc5"
 
 [[package]]
 name = "automojo-errors"
@@ -63,7 +63,7 @@ develop = false
 type = "git"
 url = "https://github.com/automationmojo/automojo-errors.git"
 reference = "main"
-resolved_reference = "70499cbbbca13723975d3f50a8c6ecd9dbe9ac00"
+resolved_reference = "f76c16a9ca66387a96eee0dc0f28dbbecb4ee34d"
 
 [[package]]
 name = "automojo-extension"
@@ -79,7 +79,7 @@ develop = false
 type = "git"
 url = "https://github.com/automationmojo/automojo-extension.git"
 reference = "main"
-resolved_reference = "ca3a99438ed0d79d16de96b5266c6b04d6026ccd"
+resolved_reference = "d43541c02d781d248cefbe05704f4647af69a24f"
 
 [[package]]
 name = "automojo-interfaces"
@@ -119,7 +119,7 @@ debugpy = "^1.8.12"
 type = "git"
 url = "https://github.com/automationmojo/automojo-runtime.git"
 reference = "main"
-resolved_reference = "a400c78024c1372a49929d8358afca439429b763"
+resolved_reference = "bc7666441b2f8ca04fc266088dab156434fbee78"
 
 [[package]]
 name = "automojo-testbase"
@@ -145,7 +145,7 @@ click = "^8.1.8"
 type = "git"
 url = "https://github.com/automationmojo/automojo-testbase.git"
 reference = "main"
-resolved_reference = "14fb974514f95ba7414c9a10e79e8a952958d81b"
+resolved_reference = "0968e5e4c46d55ef46c9f8da50e3d8b29fc4a2dd"
 
 [[package]]
 name = "automojo-this-app"
@@ -165,7 +165,7 @@ automojo-extension = {git = "https://github.com/automationmojo/automojo-extensio
 type = "git"
 url = "https://github.com/automationmojo/automojo-this-app.git"
 reference = "main"
-resolved_reference = "3aa7521898bccd6fc75b9966ebe809cf97e88373"
+resolved_reference = "fa39db53532549e2fff2df05f6f3d556d8c1e904"
 
 [[package]]
 name = "automojo-waiting"
@@ -202,7 +202,7 @@ debugpy = "^1.8.14"
 type = "git"
 url = "https://github.com/automationmojo/automojo-xmodules.git"
 reference = "main"
-resolved_reference = "b31ab8b66ab826a451f7822bae8aa9cf6eb94b08"
+resolved_reference = "39c2ea21e2ee34b3037630a798753625f02e95c8"
 
 [[package]]
 name = "certifi"
