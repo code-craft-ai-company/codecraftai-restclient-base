@@ -17,7 +17,7 @@ automojo-errors = {git = "https://github.com/automationmojo/automojo-errors.git"
 type = "git"
 url = "https://github.com/automationmojo/automojo-arcli.git"
 reference = "main"
-resolved_reference = "2b63c7263d5b5379a0682e3e6ed24b9b86d8f7d9"
+resolved_reference = "2a33fc2680ab289f1c87b8b4aeb53284e3e56ea9"
 
 [[package]]
 name = "automojo-configuration"
@@ -58,15 +58,13 @@ files = []
 develop = false
 
 [package.dependencies]
-automojo-configuration = {git = "https://github.com/automationmojo/automojo-configuration.git", branch = "main"}
-automojo-testbase = {git = "https://github.com/automationmojo/automojo-testbase.git", branch = "main"}
-automojo-this-app = {git = "https://github.com/automationmojo/automojo-this-app.git", branch = "main"}
+automojo-errors = {git = "https://github.com/automationmojo/automojo-errors.git", branch = "main"}
 
 [package.source]
 type = "git"
 url = "https://github.com/automationmojo/automojo-credentials.git"
 reference = "main"
-resolved_reference = "6570610f183a807afffa16ab9f043d833d716db2"
+resolved_reference = "18ca80b0485a5851e7889673b0ccb60c09661010"
 
 [[package]]
 name = "automojo-errors"
@@ -164,7 +162,7 @@ automojo-xmodules = {git = "https://github.com/automationmojo/automojo-xmodules.
 type = "git"
 url = "https://github.com/automationmojo/automojo-testbase.git"
 reference = "main"
-resolved_reference = "5a175256aa5481d6839c3af96ede2a6273ee8eac"
+resolved_reference = "f824872e5de35e91e7be9a069b657e6804e9ed3e"
 
 [[package]]
 name = "automojo-this-app"
