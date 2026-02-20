@@ -64,7 +64,7 @@ automojo-errors = {git = "https://github.com/automationmojo/automojo-errors.git"
 type = "git"
 url = "https://github.com/automationmojo/automojo-credentials.git"
 reference = "main"
-resolved_reference = "18ca80b0485a5851e7889673b0ccb60c09661010"
+resolved_reference = "cb7e4c4a4cd906799fda1e5d27c2d9daf5950e16"
 
 [[package]]
 name = "automojo-errors"
