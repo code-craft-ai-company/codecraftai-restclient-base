@@ -162,7 +162,7 @@ automojo-xmodules = {git = "https://github.com/automationmojo/automojo-xmodules.
 type = "git"
 url = "https://github.com/automationmojo/automojo-testbase.git"
 reference = "main"
-resolved_reference = "f824872e5de35e91e7be9a069b657e6804e9ed3e"
+resolved_reference = "5b62613d0942c49e1bdb987765f0dad9d7c6a5cd"
 
 [[package]]
 name = "automojo-this-app"
