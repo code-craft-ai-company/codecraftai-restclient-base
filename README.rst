@@ -1,27 +1,67 @@
-==================================
-Automation Mojo - Rest Client Base
-==================================
-Python package that provides base model classes and a code generator for creating OpenAPI based REST clients.
+=================================
+Automation Mojo RestClient Base
+=================================
 
-=========================
-Features of this Template
-=========================
-* Machine Setup
-* Virtual Environment Setup (Poetry)
+The ``automojo-restclient-base`` package is the foundation for the REST-client packages in the automojo suite. It provides the common base classes and utilities that derived clients (for example ``automojo-restclient-github-public`` and ``automojo-gitlab``) build on, so that every REST integration has the same shape for pagination, schema handling, aspects, and code generation.
 
-=================
-Code Organization
-=================
-* .vscode - Common tasks
-* development - This is where the runtime environment scripts are located
-* repository-setup - Scripts for homing your repository and to your checkout and machine setup
-* userguide - Where you put your user guide
-* source/packages - Put your root folder here 'source/packages/(root-module-folder)'
-* workspaces - This is where you add VSCode workspaces templates and where workspaces show up when homed.
-
-==========
-References
+Highlights
 ==========
 
-- `User Guide <userguide/userguide.rst>`
-- `Coding Standards <userguide/10-00-coding-standards.rst>`
+- ``RestClientBase`` as the HTTP client root.
+- ``RestApiGroup`` for grouping endpoints into logical API surfaces.
+- ``PagedList`` and ``ItemsResult`` for iteration over paginated responses.
+- ``SchemaObject`` and ``SchemaField`` as the serialization base for response models.
+- ``RestClientGenerator`` for generating typed client code from an OpenAPI-style spec.
+- ``AspectsRest`` as the REST-specific incarnation of the ``Aspects`` pattern.
+
+Repository Structure
+====================
+
+- ``development/`` - Runtime environment scripts.
+- ``repository-setup/`` - Repository homing and setup scripts.
+- ``source/packages/`` - Package source code.
+- ``source/testroots/automojo/`` - TestBase test roots.
+- ``userguide/`` - Standards, conventions, and documentation.
+
+Environment Setup
+=================
+
+When working in a Codex container:
+
+.. code-block:: bash
+
+   ./development/setup-agent-container
+
+For local development:
+
+.. code-block:: bash
+
+   ./repository-setup/rehome-repository
+   ./development/setup-envrionment
+
+Running Tests
+=============
+
+Activate the virtual environment:
+
+.. code-block:: bash
+
+   source .venv/bin/activate
+
+Run the single-host test suite:
+
+.. code-block:: bash
+
+   testbase testing run --root source/testroots/automojo --includes=automojo.tests.restclient.base --output=./.output
+
+Standards and Conventions
+=========================
+
+- Naming conventions: ``userguide/10-02-naming-conventions.rst``
+- Code organization: ``userguide/10-01-code-organization.rst``
+- Coding standards: ``userguide/10-00-coding-standards.rst``
+
+Additional Resources
+====================
+
+- User guide entry point: ``userguide/userguide.rst``
