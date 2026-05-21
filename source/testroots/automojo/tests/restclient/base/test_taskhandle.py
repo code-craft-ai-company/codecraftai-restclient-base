@@ -255,6 +255,7 @@ class TestCancel(unittest.TestCase):
 
     def test_with_url_posts_and_returns_none(self) -> None:
         session = MagicMock()
+        session.post.return_value.status_code = 204
         client = _ClientStub(session=session)
         handle = TaskHandle(
             task_id="task-1",
@@ -272,6 +273,26 @@ class TestCancel(unittest.TestCase):
         kwargs = session.post.call_args.kwargs
         self.assertEqual(kwargs["url"], "https://host/cancel")
         self.assertEqual(kwargs["timeout"], 5)
+        return
+
+    def test_non_success_response_raises(self) -> None:
+        """
+            Regression: cancel() must surface a non-2xx cancel response as
+            an error rather than silently reporting success.
+        """
+        session = MagicMock()
+        session.post.return_value.status_code = 500
+        client = _ClientStub(session=session)
+        handle = TaskHandle(
+            task_id="task-1",
+            client=client,
+            status_url="https://host/status",
+            cancel_url="https://host/cancel",
+            state_extractor=_state_extractor,
+        )
+        aspects = AspectsRest(completion_timeout=5)
+        with self.assertRaises(RuntimeError):
+            handle.cancel(aspects=aspects)
         return
 
     def test_without_url_raises_notimplemented(self) -> None:
@@ -436,6 +457,65 @@ class TestTaskHandleProperties(unittest.TestCase):
             handle.is_done(),
             handle._last_observed_state in TERMINAL_STATES,
         )
+        return
+
+
+class TestFetchStatusTimeout(unittest.TestCase):
+    """
+        Regression tests for audit finding F-H7: ``_fetch_status`` issued
+        ``session.get`` with no timeout, so a hung status endpoint blocked
+        ``wait()`` forever and defeated ``aspects.completion_timeout``.
+    """
+
+    def test_fetch_status_passes_connection_timeout(self) -> None:
+        """
+            Every status poll must pass ``aspects.connection_timeout`` as
+            the per-request timeout to ``session.get``.
+        """
+        session = _make_status_session([TaskState.SUCCEEDED])
+        client = _ClientStub(session=session)
+        handle = TaskHandle(
+            task_id="task-t",
+            client=client,
+            status_url="https://host/status",
+            cancel_url=None,
+            state_extractor=_state_extractor,
+        )
+        aspects = AspectsRest(
+            completion_interval=0.0001,
+            completion_timeout=10,
+            connection_timeout=7,
+        )
+
+        with patch(
+            "automojo.restclient.base.taskhandle.time.sleep", return_value=None
+        ):
+            handle.wait(aspects=aspects)
+
+        session.get.assert_called_once()
+        kwargs = session.get.call_args.kwargs
+        self.assertEqual(kwargs["timeout"], 7)
+        return
+
+
+class TestCanonicalTaskState(unittest.TestCase):
+    """
+        Regression test for audit finding F-H6: the ImportError fallback
+        defined ``TaskState`` as a string ``Enum`` while the canonical type
+        is an ``IntEnum`` -- a value-incompatible silent divergence.
+    """
+
+    def test_taskstate_is_canonical_intenum(self) -> None:
+        """
+            ``taskhandle.TaskState`` must be the canonical
+            ``automojo.interfaces.itaskhandle.TaskState`` IntEnum.
+        """
+        from enum import IntEnum
+        from automojo.interfaces.itaskhandle import TaskState as CanonicalTaskState
+
+        self.assertIs(TaskState, CanonicalTaskState)
+        self.assertTrue(issubclass(TaskState, IntEnum))
+        self.assertEqual(int(TaskState.SUCCEEDED), 3)
         return
 
 

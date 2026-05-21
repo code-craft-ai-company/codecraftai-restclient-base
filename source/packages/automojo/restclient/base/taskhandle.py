@@ -15,61 +15,26 @@ __credits__ = []
 
 from typing import TYPE_CHECKING, Callable, Optional
 
+import os
 import time
-
-from dataclasses import dataclass, field
-from enum import Enum
 
 from automojo.errors.exceptions import SemanticError
 
+# ---------------------------------------------------------------------------
+# Cross-repository type imports.
+#
+# ``ITaskHandle`` / ``TaskResult`` / ``TaskState`` are core types owned by
+# ``automojo-interfaces``. They are imported hard so a missing or mis-pathed
+# core dependency fails loudly at import time. A previous ImportError fallback
+# defined ``TaskState`` as a string ``Enum`` while the canonical type is an
+# ``IntEnum`` -- a value-incompatible silent divergence.
+# ---------------------------------------------------------------------------
 
-# Try to bind to the canonical interface from `automojo-interfaces` when
-# it is importable.  The interfaces package is implemented in parallel
-# and may not yet expose `itaskhandle`; in that case we fall back to a
-# local declaration that structurally matches the protocol so this
-# class can still be instantiated by tests.
-try:
-    from automojo.interfaces.itaskhandle import (  # type: ignore[import-not-found]
-        ITaskHandle as _IExternalTaskHandle,
-        TaskResult as _ExternalTaskResult,
-        TaskState as _ExternalTaskState,
-    )
-    _ITaskHandleBase = _IExternalTaskHandle
-    TaskResult = _ExternalTaskResult
-    TaskState = _ExternalTaskState
-except ImportError:
-
-    class TaskState(Enum):
-        """
-            Enumeration of long-running task states.  Mirrors the
-            protocol defined in ``automojo-interfaces`` so the local
-            fall-back is structurally identical.
-        """
-        PENDING = "PENDING"
-        RUNNING = "RUNNING"
-        SUCCEEDED = "SUCCEEDED"
-        FAILED = "FAILED"
-        CANCELLED = "CANCELLED"
-
-    @dataclass
-    class TaskResult:
-        """
-            Result returned by :meth:`TaskHandle.wait` once a task has
-            reached a terminal state.
-        """
-        task_id: str
-        state: "TaskState"
-        progress: int = 0
-        error: Optional[str] = None
-        payload: Optional[dict] = field(default=None)
-
-    class _ITaskHandleBase:
-        """
-            Local structural stand-in for the
-            :class:`automojo.interfaces.itaskhandle.ITaskHandle` protocol
-            used when the protocol package is not yet installed.
-        """
-        pass
+from automojo.interfaces.itaskhandle import (
+    ITaskHandle as _ITaskHandleBase,
+    TaskResult,
+    TaskState,
+)
 
 
 if TYPE_CHECKING:
@@ -185,7 +150,7 @@ class TaskHandle(_ITaskHandleBase):
 
         rtnval: Optional[TaskResult] = None
         while True:
-            payload = self._fetch_status()
+            payload = self._fetch_status(aspects=aspects)
             state = self._state_extractor(payload)
             self._last_observed_state = state
 
@@ -233,19 +198,40 @@ class TaskHandle(_ITaskHandleBase):
             raise NotImplementedError(err_msg)
 
         session = self._client._session
-        session.post(url=self._cancel_url, timeout=aspects.completion_timeout)
+        response = session.post(
+            url=self._cancel_url, timeout=aspects.completion_timeout
+        )
+        status_code = response.status_code
+        if status_code < 200 or status_code >= 300:
+            err_msg_lines = [
+                "TaskHandle.cancel received a non-success response.",
+                "    task_id: {0!r}".format(self._task_id),
+                "    cancel_url: {0!r}".format(self._cancel_url),
+                "    status_code: {0}".format(status_code),
+            ]
+            err_msg = os.linesep.join(err_msg_lines)
+            raise RuntimeError(err_msg)
         return None
 
     # ---- internals ----
 
-    def _fetch_status(self) -> dict:
+    def _fetch_status(self, *, aspects: "AspectsRest") -> dict:
         """
             Fetches the current status payload from :attr:`status_url`.
+
+            The request is bounded by ``aspects.connection_timeout`` so a
+            hung status endpoint cannot block :meth:`wait` indefinitely
+            and defeat ``aspects.completion_timeout``.
+
+            :param aspects: Behaviour controls; ``connection_timeout`` is
+                used as the per-request timeout.
 
             :returns: The parsed JSON payload.
         """
         session = self._client._session
-        response = session.get(url=self._status_url)
+        response = session.get(
+            url=self._status_url, timeout=aspects.connection_timeout
+        )
         rtnval = response.json()
         return rtnval
 
