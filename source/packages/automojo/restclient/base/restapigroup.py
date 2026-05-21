@@ -90,8 +90,13 @@ class RestApiGroup:
                 rtnval = item_type.from_dict(data)
             else:
                 rtnval = item_type(**data)
-        except Exception:
-            # Fallback: return the raw dict if parsing fails
+        except SemanticError:
+            # API-misuse errors must never be silently absorbed; let them
+            # bubble so the calling code is fixed rather than masked.
+            raise
+        except (TypeError, ValueError, KeyError, AttributeError):
+            # Fallback: return the raw dict when the payload does not fit
+            # the target schema (shape mismatch / missing keys).
             rtnval = data
         return rtnval
 
@@ -197,6 +202,11 @@ class RestApiGroup:
             :returns: The raw :class:`requests.Response`.
         """
         owning_client = self.client
+        if owning_client is None:
+            raise SemanticError(
+                "RestApiGroup.post_multipart called after the owning "
+                "RestClientBase was garbage collected."
+            )
         session = owning_client._session
         timeout = aspects.completion_timeout
 
@@ -273,6 +283,7 @@ class RestApiGroup:
         fetch_page: Callable[[int, int], dict],
         page_size: int,
         items_field: str = "items",
+        max_pages: int = 10000,
         aspects: "AspectsRest",
     ) -> Iterator[dict]:
         """
@@ -284,6 +295,9 @@ class RestApiGroup:
             :param page_size: Maximum item count per page.
             :param items_field: Name of the field on each page payload
                 holding the list of items.
+            :param max_pages: Hard upper bound on the number of pages
+                fetched. Guards against a misbehaving endpoint that always
+                returns a full page, which would otherwise loop forever.
             :param aspects: Behaviour controls (reserved for future use).
 
             :returns: An iterator over the items.
@@ -295,10 +309,16 @@ class RestApiGroup:
             raise SemanticError(
                 "iter_pages_offset requires page_size > 0."
             )
+        if max_pages <= 0:
+            raise SemanticError(
+                "iter_pages_offset requires max_pages > 0."
+            )
 
         offset = 0
+        pages_fetched = 0
         while True:
             page = fetch_page(offset, page_size)
+            pages_fetched = pages_fetched + 1
             if items_field not in page:
                 err_msg = (
                     "iter_pages_offset: response page missing required items "
@@ -312,6 +332,12 @@ class RestApiGroup:
 
             if len(items) < page_size:
                 break
+            if pages_fetched >= max_pages:
+                err_msg = (
+                    "iter_pages_offset exceeded max_pages={0}; the endpoint "
+                    "never returned a short final page.".format(max_pages)
+                )
+                raise ValueError(err_msg)
             offset = offset + page_size
         return
 
@@ -340,6 +366,11 @@ class RestApiGroup:
             :raises: ValueError
         """
         owning_client = self.client
+        if owning_client is None:
+            raise SemanticError(
+                "RestApiGroup.iter_pages_link_header called after the "
+                "owning RestClientBase was garbage collected."
+            )
         session = owning_client._session
 
         next_url: Optional[str] = initial_url
