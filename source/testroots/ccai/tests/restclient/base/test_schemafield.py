@@ -1,6 +1,6 @@
-from automojo import testbase
+from ccai import testbase
 
-from automojo.restclient.base.schemafield import Field
+from ccai.restclient.base.schemafield import Field
 
 
 class _FieldHost:

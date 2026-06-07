@@ -3,8 +3,8 @@
 ## Introduction
 
 The `task-handle-base` feature adds a reusable `TaskHandle` class to
-`automojo-restclient-base` that implements `ITaskHandle` (from
-`automojo-interfaces/task-handle-protocol`) for REST-polling APIs.
+`codecraftai-restclient-base` that implements `ITaskHandle` (from
+`codecraftai-interfaces/task-handle-protocol`) for REST-polling APIs.
 vSphere, Proxmox, Nutanix, and any other venue whose long-running
 operations are surfaced as polling URLs reuse this class instead of
 hand-rolling their own poll loops. Vendors whose tasks are not REST-
@@ -15,7 +15,7 @@ only," the implementation is synchronous, with all pacing
 (`completion_interval`, `completion_timeout`) controlled by the
 `AspectsRest` instance.
 
-**See Also:** [task-handle-protocol](../../../automojo-interfaces/specs/task-handle-protocol/design.md),
+**See Also:** [task-handle-protocol](../../../codecraftai-interfaces/specs/task-handle-protocol/design.md),
 [restapigroup-enhancements](../restapigroup-enhancements/design.md).
 
 ---
@@ -31,7 +31,7 @@ per venue.
 #### Acceptance Criteria
 
 1. THE SYSTEM SHALL define `TaskHandle` implementing `ITaskHandle`
-   in `automojo-restclient-base/source/packages/automojo/restclient/base/taskhandle.py`.
+   in `codecraftai-restclient-base/source/packages/ccai/restclient/base/taskhandle.py`.
 2. THE SYSTEM SHALL accept the following constructor parameters:
    - `task_id: str`
    - `client: RestClientBase`

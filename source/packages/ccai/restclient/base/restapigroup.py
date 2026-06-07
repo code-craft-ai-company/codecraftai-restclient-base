@@ -9,7 +9,7 @@
 
 
 __author__ = "Myron Walker"
-__copyright__ = "Copyright 2025, Automation Mojo LLC"
+__copyright__ = "Copyright 2025, Code Craft AI LLC"
 __credits__ = []
 
 
@@ -27,14 +27,14 @@ from typing import (
 
 import weakref
 
-from automojo.errors.exceptions import SemanticError
+from ccai.errors.exceptions import SemanticError
 
 
 if TYPE_CHECKING:
     from requests import Response
 
-    from automojo.restclient.base.aspectsrest import AspectsRest
-    from automojo.restclient.base.restclientbase import RestClientBase
+    from ccai.restclient.base.aspectsrest import AspectsRest
+    from ccai.restclient.base.restclientbase import RestClientBase
 
 
 T = TypeVar('T')

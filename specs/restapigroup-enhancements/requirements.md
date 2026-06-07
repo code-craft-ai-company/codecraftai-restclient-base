@@ -4,8 +4,8 @@
 
 The `restapigroup-enhancements` feature audits and extends
 `RestApiGroup` in
-`automojo-restclient-base/source/packages/automojo/restclient/base/restapigroup.py`
-so that the VSphere extraction (`automojo-interop-vsphere`) and every
+`codecraftai-restclient-base/source/packages/ccai/restclient/base/restapigroup.py`
+so that the VSphere extraction (`codecraftai-interop-vsphere`) and every
 future REST-shaped interop client can build on a single base class
 rather than forking. Per §6.6 decision in
 `PLAN-VPN-AND-CLOUD-PROVISIONING.md` — "API-group base → RestApiGroup
@@ -25,7 +25,7 @@ This spec defines the *enhancements to the base class only*. Specific
 api groups in venue packages consume the new surface.
 
 **See Also:** [task-handle-base](../task-handle-base/design.md),
-[task-handle-protocol](../../../automojo-interfaces/specs/task-handle-protocol/design.md).
+[task-handle-protocol](../../../codecraftai-interfaces/specs/task-handle-protocol/design.md).
 
 ---
 

@@ -1,6 +1,6 @@
-from automojo import testbase
+from ccai import testbase
 
-from automojo.restclient.base.pagedlist import LinkInfo, PagedList
+from ccai.restclient.base.pagedlist import LinkInfo, PagedList
 
 
 def test_pagedlist_sequence_behavior():

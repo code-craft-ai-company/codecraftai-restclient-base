@@ -3,7 +3,7 @@
 ## Overview
 
 `TaskHandle` is the reusable REST-polling implementation of
-`ITaskHandle` (defined in `automojo-interfaces/task-handle-protocol`).
+`ITaskHandle` (defined in `codecraftai-interfaces/task-handle-protocol`).
 It encapsulates the "GET this URL until the state field reaches a
 terminal value" pattern that vSphere, Proxmox, Nutanix, and other
 async-API venues use uniformly.
@@ -14,7 +14,7 @@ The class is configured by injecting small extractor callables —
 shape. Pacing is controlled entirely by the caller's `AspectsRest`
 instance (per §6.6 commitment).
 
-**See Also:** [task-handle-protocol](../../../automojo-interfaces/specs/task-handle-protocol/design.md),
+**See Also:** [task-handle-protocol](../../../codecraftai-interfaces/specs/task-handle-protocol/design.md),
 [restapigroup-enhancements](../restapigroup-enhancements/design.md).
 
 ---
@@ -53,14 +53,14 @@ instance (per §6.6 commitment).
 from typing import Callable, Optional
 import time
 
-from automojo.errors.exceptions import SemanticError
-from automojo.interfaces.itaskhandle import (
+from ccai.errors.exceptions import SemanticError
+from ccai.interfaces.itaskhandle import (
     ITaskHandle,
     TaskResult,
     TaskState,
 )
-from automojo.restclient.base.aspectsrest import AspectsRest
-from automojo.restclient.base.restclientbase import RestClientBase
+from ccai.restclient.base.aspectsrest import AspectsRest
+from ccai.restclient.base.restclientbase import RestClientBase
 
 
 TERMINAL_STATES = (TaskState.SUCCEEDED, TaskState.FAILED, TaskState.CANCELLED)
@@ -174,7 +174,7 @@ class TaskHandle(ITaskHandle):
 ## Module Layout
 
 ```
-automojo-restclient-base/source/packages/automojo/restclient/base/
+codecraftai-restclient-base/source/packages/ccai/restclient/base/
   taskhandle.py        <-- TaskHandle, TERMINAL_STATES
   aspectsrest.py       (existing — supplies AspectsRest)
   restclientbase.py    (existing — supplies the _session)
@@ -184,11 +184,11 @@ automojo-restclient-base/source/packages/automojo/restclient/base/
 
 ## See Also
 
-- [task-handle-protocol](../../../automojo-interfaces/specs/task-handle-protocol/design.md)
+- [task-handle-protocol](../../../codecraftai-interfaces/specs/task-handle-protocol/design.md)
   — the interface this class implements.
 - [restapigroup-enhancements](../restapigroup-enhancements/design.md)
   — the other reusable building block landing in the same milestone.
-- [vpn-control-plane-protocol](../../../automojo-interfaces/specs/vpn-control-plane-protocol/design.md)
+- [vpn-control-plane-protocol](../../../codecraftai-interfaces/specs/vpn-control-plane-protocol/design.md)
   — control planes that surface async ACL applies may return a
   `TaskHandle` from `apply_acl`.
 

@@ -1,6 +1,6 @@
-from automojo import testbase
+from ccai import testbase
 
-from automojo.restclient.base.restapigroup import RestApiGroup
+from ccai.restclient.base.restapigroup import RestApiGroup
 
 
 class _ClientStub:

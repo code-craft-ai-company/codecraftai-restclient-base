@@ -2,7 +2,7 @@
 
 ## Module and Models
 
-- [x] 1. Create `automojo-restclient-base/source/packages/automojo/restclient/base/taskhandle.py`.
+- [x] 1. Create `codecraftai-restclient-base/source/packages/ccai/restclient/base/taskhandle.py`.
 - [x] 2. Add `TERMINAL_STATES = (TaskState.SUCCEEDED, TaskState.FAILED,
   TaskState.CANCELLED)` module constant.
 - [x] 3. Add Sphinx-style module and class docstrings.

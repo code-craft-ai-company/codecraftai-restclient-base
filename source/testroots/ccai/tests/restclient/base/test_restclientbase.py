@@ -1,10 +1,10 @@
 from http import HTTPStatus
 
-from automojo import testbase
+from ccai import testbase
 
-from automojo.errors.exceptions import HttpForbiddenError
-from automojo.restclient.base.aspectsrest import ActionPattern, AspectsRest
-from automojo.restclient.base.restclientbase import RestClientBase
+from ccai.errors.exceptions import HttpForbiddenError
+from ccai.restclient.base.aspectsrest import ActionPattern, AspectsRest
+from ccai.restclient.base.restclientbase import RestClientBase
 
 
 class _CredentialStub:

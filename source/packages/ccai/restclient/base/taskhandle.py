@@ -9,7 +9,7 @@
 
 
 __author__ = "Myron Walker"
-__copyright__ = "Copyright 2025, Automation Mojo LLC"
+__copyright__ = "Copyright 2025, Code Craft AI LLC"
 __credits__ = []
 
 
@@ -18,19 +18,19 @@ from typing import TYPE_CHECKING, Callable, Optional
 import os
 import time
 
-from automojo.errors.exceptions import SemanticError
+from ccai.errors.exceptions import SemanticError
 
 # ---------------------------------------------------------------------------
 # Cross-repository type imports.
 #
 # ``ITaskHandle`` / ``TaskResult`` / ``TaskState`` are core types owned by
-# ``automojo-interfaces``. They are imported hard so a missing or mis-pathed
+# ``codecraftai-interfaces``. They are imported hard so a missing or mis-pathed
 # core dependency fails loudly at import time. A previous ImportError fallback
 # defined ``TaskState`` as a string ``Enum`` while the canonical type is an
 # ``IntEnum`` -- a value-incompatible silent divergence.
 # ---------------------------------------------------------------------------
 
-from automojo.interfaces.itaskhandle import (
+from ccai.interfaces.itaskhandle import (
     ITaskHandle as _ITaskHandleBase,
     TaskResult,
     TaskState,
@@ -38,8 +38,8 @@ from automojo.interfaces.itaskhandle import (
 
 
 if TYPE_CHECKING:
-    from automojo.restclient.base.aspectsrest import AspectsRest
-    from automojo.restclient.base.restclientbase import RestClientBase
+    from ccai.restclient.base.aspectsrest import AspectsRest
+    from ccai.restclient.base.restclientbase import RestClientBase
 
 
 TERMINAL_STATES = (TaskState.SUCCEEDED, TaskState.FAILED, TaskState.CANCELLED)

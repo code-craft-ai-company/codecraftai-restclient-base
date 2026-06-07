@@ -2,7 +2,7 @@
 
 ## Module and Models
 
-- [x] 1. Open `automojo-restclient-base/source/packages/automojo/restclient/base/restapigroup.py`
+- [x] 1. Open `codecraftai-restclient-base/source/packages/ccai/restclient/base/restapigroup.py`
   for in-place extension.
 - [x] 2. Add `BASE_LEAF: str = ""` class attribute on `RestApiGroup`.
 - [x] 3. Add Sphinx-style docstrings on every new method.
