@@ -1,8 +1,8 @@
 import logging
 
-from automojo import testbase
+from ccai import testbase
 
-from automojo.restclient.base.aspectsrest import (
+from ccai.restclient.base.aspectsrest import (
     ActionPattern,
     AspectsRest,
     DEFAULT_ALLOWED_CONNECTION_EXCEPTIONS,

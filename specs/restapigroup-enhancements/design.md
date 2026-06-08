@@ -15,8 +15,8 @@ continue to work unchanged. The new methods follow project standards
 no decorators, explicit returns assigned to locals).
 
 **See Also:** [task-handle-base](../task-handle-base/design.md),
-[task-handle-protocol](../../../automojo-interfaces/specs/task-handle-protocol/design.md),
-[vpn-control-plane-protocol](../../../automojo-interfaces/specs/vpn-control-plane-protocol/design.md).
+[task-handle-protocol](../../../codecraftai-interfaces/specs/task-handle-protocol/design.md),
+[vpn-control-plane-protocol](../../../codecraftai-interfaces/specs/vpn-control-plane-protocol/design.md).
 
 ---
 
@@ -48,7 +48,7 @@ no decorators, explicit returns assigned to locals).
                 | Subclasses               |
                 |  VmGroup, ClusterGroup,  |
                 |  DatastoreGroup, ...     |
-                |  (automojo-interop-      |
+                |  (codecraftai-interop-      |
                 |   vsphere/apigroups/)    |
                 +--------------------------+
 ```
@@ -62,12 +62,12 @@ from typing import IO, Callable, Dict, Iterator, List, Optional, TYPE_CHECKING
 
 import weakref
 
-from automojo.errors.exceptions import SemanticError
+from ccai.errors.exceptions import SemanticError
 
 if TYPE_CHECKING:
     from requests import Response
-    from automojo.restclient.base.restclientbase import RestClientBase
-    from automojo.restclient.base.aspectsrest import AspectsRest
+    from ccai.restclient.base.restclientbase import RestClientBase
+    from ccai.restclient.base.aspectsrest import AspectsRest
 
 
 class RestApiGroup:
@@ -247,7 +247,7 @@ def _parse_next_link(*, link_header: str) -> Optional[str]:
 ## Module Layout
 
 ```
-automojo-restclient-base/source/packages/automojo/restclient/base/
+codecraftai-restclient-base/source/packages/ccai/restclient/base/
   restapigroup.py     <-- extended in place
   restclientbase.py   (existing — used by post_multipart for session access)
   aspectsrest.py      (existing — supplies AspectsRest type)
@@ -259,8 +259,8 @@ automojo-restclient-base/source/packages/automojo/restclient/base/
 
 - [task-handle-base](../task-handle-base/design.md) — the second
   reusable building block landing in this milestone.
-- [task-handle-protocol](../../../automojo-interfaces/specs/task-handle-protocol/design.md).
-- [vpn-control-plane-protocol](../../../automojo-interfaces/specs/vpn-control-plane-protocol/design.md)
+- [task-handle-protocol](../../../codecraftai-interfaces/specs/task-handle-protocol/design.md).
+- [vpn-control-plane-protocol](../../../codecraftai-interfaces/specs/vpn-control-plane-protocol/design.md)
   — Tailscale/Twingate control planes consume `RestApiGroup`.
 
 ---

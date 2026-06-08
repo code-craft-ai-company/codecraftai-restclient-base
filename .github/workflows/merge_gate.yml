@@ -38,7 +38,7 @@ jobs:
         run: git config --global credential.helper store
 
       - name: Set the Github Token
-        run: echo "https://git:${{ secrets.AUTOMOJO_ACCESS_TOKEN }}@github.com" > ~/.git-credentials
+        run: echo "https://git:${{ secrets.CCAI_ACCESS_TOKEN }}@github.com" > ~/.git-credentials
 
       - name: Re-Home the Repository
         run: |
@@ -54,5 +54,5 @@ jobs:
         # Start-up tests have to be run individually
         run: |
           source ./.venv/bin/activate
-          testbase testing run --root ./source/testroots/automojo --includes=automojo.tests.restclient.base
+          testbase testing run --root ./source/testroots/ccai --includes=ccai.tests.restclient.base
           deactivate

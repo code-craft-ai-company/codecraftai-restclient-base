@@ -9,7 +9,7 @@
 
 
 __author__ = "Myron Walker"
-__copyright__ = "Copyright 2025, Automation Mojo LLC"
+__copyright__ = "Copyright 2025, Code Craft AI LLC"
 __credits__ = []
 
 
@@ -20,10 +20,10 @@ from unittest.mock import MagicMock, patch
 
 from hypothesis import given, settings, strategies as st
 
-from automojo.errors.exceptions import SemanticError
+from ccai.errors.exceptions import SemanticError
 
-from automojo.restclient.base.aspectsrest import AspectsRest
-from automojo.restclient.base.taskhandle import (
+from ccai.restclient.base.aspectsrest import AspectsRest
+from ccai.restclient.base.taskhandle import (
     TERMINAL_STATES,
     TaskHandle,
     TaskResult,
@@ -127,7 +127,7 @@ class TestWaitSuccess(unittest.TestCase):
         aspects = AspectsRest(completion_interval=0.0001, completion_timeout=10)
 
         with patch(
-            "automojo.restclient.base.taskhandle.time.sleep", return_value=None
+            "ccai.restclient.base.taskhandle.time.sleep", return_value=None
         ):
             result = handle.wait(aspects=aspects)
 
@@ -153,7 +153,7 @@ class TestWaitSuccess(unittest.TestCase):
         aspects = AspectsRest(completion_interval=0.0001, completion_timeout=10)
 
         with patch(
-            "automojo.restclient.base.taskhandle.time.sleep", return_value=None
+            "ccai.restclient.base.taskhandle.time.sleep", return_value=None
         ):
             result = handle.wait(aspects=aspects)
 
@@ -177,7 +177,7 @@ class TestWaitSuccess(unittest.TestCase):
         aspects = AspectsRest(completion_interval=0.0001, completion_timeout=10)
 
         with patch(
-            "automojo.restclient.base.taskhandle.time.sleep", return_value=None
+            "ccai.restclient.base.taskhandle.time.sleep", return_value=None
         ):
             result = handle.wait(aspects=aspects)
 
@@ -205,9 +205,9 @@ class TestWaitTimeout(unittest.TestCase):
         # the deadline is crossed after two iterations.
         ticker = iter([0.0, 1.0, 2.5])
         with patch(
-            "automojo.restclient.base.taskhandle.time.sleep", return_value=None
+            "ccai.restclient.base.taskhandle.time.sleep", return_value=None
         ), patch(
-            "automojo.restclient.base.taskhandle.time.monotonic",
+            "ccai.restclient.base.taskhandle.time.monotonic",
             side_effect=lambda: next(ticker),
         ):
             error: Optional[BaseException] = None
@@ -375,7 +375,7 @@ class TestTaskHandleProperties(unittest.TestCase):
         )
 
         with patch(
-            "automojo.restclient.base.taskhandle.time.sleep", return_value=None
+            "ccai.restclient.base.taskhandle.time.sleep", return_value=None
         ):
             result = handle.wait(aspects=aspects)
 
@@ -412,9 +412,9 @@ class TestTaskHandleProperties(unittest.TestCase):
         # deadline on the next read.
         clock_values = iter([0.0] + [10.0] * (non_terminal_count + 5))
         with patch(
-            "automojo.restclient.base.taskhandle.time.sleep", return_value=None
+            "ccai.restclient.base.taskhandle.time.sleep", return_value=None
         ), patch(
-            "automojo.restclient.base.taskhandle.time.monotonic",
+            "ccai.restclient.base.taskhandle.time.monotonic",
             side_effect=lambda: next(clock_values),
         ):
             with self.assertRaises(TimeoutError):
@@ -449,7 +449,7 @@ class TestTaskHandleProperties(unittest.TestCase):
         aspects = AspectsRest(completion_interval=0.0001, completion_timeout=1000)
 
         with patch(
-            "automojo.restclient.base.taskhandle.time.sleep", return_value=None
+            "ccai.restclient.base.taskhandle.time.sleep", return_value=None
         ):
             handle.wait(aspects=aspects)
 
@@ -488,7 +488,7 @@ class TestFetchStatusTimeout(unittest.TestCase):
         )
 
         with patch(
-            "automojo.restclient.base.taskhandle.time.sleep", return_value=None
+            "ccai.restclient.base.taskhandle.time.sleep", return_value=None
         ):
             handle.wait(aspects=aspects)
 
@@ -508,10 +508,10 @@ class TestCanonicalTaskState(unittest.TestCase):
     def test_taskstate_is_canonical_intenum(self) -> None:
         """
             ``taskhandle.TaskState`` must be the canonical
-            ``automojo.interfaces.itaskhandle.TaskState`` IntEnum.
+            ``ccai.interfaces.itaskhandle.TaskState`` IntEnum.
         """
         from enum import IntEnum
-        from automojo.interfaces.itaskhandle import TaskState as CanonicalTaskState
+        from ccai.interfaces.itaskhandle import TaskState as CanonicalTaskState
 
         self.assertIs(TaskState, CanonicalTaskState)
         self.assertTrue(issubclass(TaskState, IntEnum))

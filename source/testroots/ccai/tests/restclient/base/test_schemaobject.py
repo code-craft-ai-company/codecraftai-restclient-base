@@ -1,7 +1,7 @@
-from automojo import testbase
+from ccai import testbase
 
-from automojo.restclient.base.schemafield import Field
-from automojo.restclient.base.schemaobject import SchemaObject
+from ccai.restclient.base.schemafield import Field
+from ccai.restclient.base.schemaobject import SchemaObject
 
 
 class _SimpleSchema(SchemaObject):

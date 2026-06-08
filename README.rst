@@ -1,8 +1,8 @@
 =================================
-Automation Mojo RestClient Base
+Code Craft AI RestClient Base
 =================================
 
-The ``automojo-restclient-base`` package is the foundation for the REST-client packages in the automojo suite. It provides the common base classes and utilities that derived clients (for example ``automojo-restclient-github-public`` and ``automojo-gitlab``) build on, so that every REST integration has the same shape for pagination, schema handling, aspects, and code generation.
+The ``codecraftai-restclient-base`` package is the foundation for the REST-client packages in the ccai suite. It provides the common base classes and utilities that derived clients (for example ``codecraftai-restclient-github-public`` and ``codecraftai-gitlab``) build on, so that every REST integration has the same shape for pagination, schema handling, aspects, and code generation.
 
 Highlights
 ==========
@@ -20,7 +20,7 @@ Repository Structure
 - ``development/`` - Runtime environment scripts.
 - ``repository-setup/`` - Repository homing and setup scripts.
 - ``source/packages/`` - Package source code.
-- ``source/testroots/automojo/`` - TestBase test roots.
+- ``source/testroots/ccai/`` - TestBase test roots.
 - ``userguide/`` - Standards, conventions, and documentation.
 
 Environment Setup
@@ -52,7 +52,7 @@ Run the single-host test suite:
 
 .. code-block:: bash
 
-   testbase testing run --root source/testroots/automojo --includes=automojo.tests.restclient.base --output=./.output
+   testbase testing run --root source/testroots/ccai --includes=ccai.tests.restclient.base --output=./.output
 
 Standards and Conventions
 =========================

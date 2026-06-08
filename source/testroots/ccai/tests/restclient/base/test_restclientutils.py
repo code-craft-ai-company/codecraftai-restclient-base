@@ -1,9 +1,9 @@
 import dataclasses
 
-from automojo import testbase
+from ccai import testbase
 
-from automojo.restclient.base.restclientutils import convert_to_foundation_datatype
-from automojo.restclient.base.restclientutils import normalize_query_arg_value
+from ccai.restclient.base.restclientutils import convert_to_foundation_datatype
+from ccai.restclient.base.restclientutils import normalize_query_arg_value
 
 
 @dataclasses.dataclass

@@ -8,7 +8,7 @@
 
 from typing import Any, Dict, List, Optional, Type, TypeVar
 
-from automojo.restclient.base.schemafield import Field
+from ccai.restclient.base.schemafield import Field
 
 
 T = TypeVar('T', bound='SchemaObject')
