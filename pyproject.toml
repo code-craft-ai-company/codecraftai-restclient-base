@@ -2,12 +2,12 @@
 name = "codecraftai-restclient-base"
 description = "Code Craft AI - Rest Client Base"
 version = "0.0.1"
-authors = []
+authors = ["Myron Walker <myron.walker@gmail.com>"]
 readme = "README.rst"
-license = "LICENSE.txt"
+license = "LicenseRef-CodeCraftAI-Dual-License"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
+    "License :: Other/Proprietary License",
     "Operating System :: POSIX"
 ]
 keywords = [
@@ -20,13 +20,13 @@ python = ">=3.10,<4.0"
 pyyaml = "^6.0.3"
 requests = "^2.32.5"
 codecraftai-errors = { git = "https://github.com/automationmojo/codecraftai-errors.git", branch = "main" }
+codecraftai-interfaces = { git = "https://github.com/automationmojo/codecraftai-interfaces.git", branch = "main" }
 codecraftai-credentials = { git = "https://github.com/automationmojo/codecraftai-credentials.git", branch = "main" }
-codecraftai-testbase = { git = "https://github.com/automationmojo/codecraftai-testbase.git", branch = "main" }
 
 
 [tool.poetry.group.dev.dependencies]
-
-[tool.poetry.group.dbio.dependencies]
+hypothesis = ">=6.0.0"
+codecraftai-testbase = { git = "https://github.com/automationmojo/codecraftai-testbase.git", branch = "main" }
 
 [build-system]
 requires = ["poetry-core"]

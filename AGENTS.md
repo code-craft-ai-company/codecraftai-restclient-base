@@ -82,7 +82,7 @@ When work is being done on this repository using the Codex web environment.  Use
 When checking out the code for this repository in order to test changes, agents must:
 
 * run the 'repository-setup/rehome-repository' script.  It creates a needed '.env' file.
-* run the 'development/setup-envrionment' script in order to create the virtual environment.
+* run the 'development/setup-environment' script in order to create the virtual environment.
 
 # Project Specific Rules
 

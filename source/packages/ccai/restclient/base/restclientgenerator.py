@@ -1444,9 +1444,11 @@ def rest_client_generator_main():
 
     args = parser.parse_args()
 
-    from ccai.github.rest.generation.githubrestclientgenerator import GithubRestClientGenerator
-
-    generator = GithubRestClientGenerator(
+    # Use this package's own RestClientGenerator. The previous import of
+    # ccai.github.rest.generation.githubrestclientgenerator resolved nowhere (the
+    # base package must not depend on a specific client package); the local
+    # generator has the same constructor and is the correct foundation entry point.
+    generator = RestClientGenerator(
         openapi_spec_file=args.specfile,
         clients_root=args.client_root,
         client_class_name=args.client_classname

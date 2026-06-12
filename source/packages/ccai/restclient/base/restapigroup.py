@@ -207,7 +207,7 @@ class RestApiGroup:
                 "RestApiGroup.post_multipart called after the owning "
                 "RestClientBase was garbage collected."
             )
-        session = owning_client._session
+        session = owning_client._get_session(aspects)
         timeout = aspects.completion_timeout
 
         rtnval = session.post(
@@ -229,6 +229,7 @@ class RestApiGroup:
         fetch_page: Callable[[Optional[str]], dict],
         cursor_field: str = "next",
         items_field: str = "items",
+        max_pages: int = 10000,
         aspects: "AspectsRest",
     ) -> Iterator[dict]:
         """
@@ -254,9 +255,14 @@ class RestApiGroup:
         # extend `fetch_page` to honour it.
         _ = aspects
 
+        if max_pages <= 0:
+            raise ValueError("iter_pages_cursor requires max_pages > 0.")
+
         cursor: Optional[str] = None
+        pages_fetched = 0
         while True:
             page = fetch_page(cursor)
+            pages_fetched += 1
             if items_field not in page:
                 err_msg = (
                     "iter_pages_cursor: response page missing required items "
@@ -271,6 +277,15 @@ class RestApiGroup:
             cursor = page.get(cursor_field)
             if cursor is None:
                 break
+
+            if pages_fetched >= max_pages:
+                # Guard against an endpoint that always returns a non-None cursor
+                # (which would otherwise loop forever), matching iter_pages_offset.
+                err_msg = (
+                    "iter_pages_cursor exceeded max_pages={0}; the endpoint never "
+                    "returned a final page (cursor stayed non-None).".format(max_pages)
+                )
+                raise ValueError(err_msg)
         return
 
     # ------------------------------------------------------------------
@@ -371,7 +386,7 @@ class RestApiGroup:
                 "RestApiGroup.iter_pages_link_header called after the "
                 "owning RestClientBase was garbage collected."
             )
-        session = owning_client._session
+        session = owning_client._get_session(aspects)
 
         next_url: Optional[str] = initial_url
         while next_url is not None:

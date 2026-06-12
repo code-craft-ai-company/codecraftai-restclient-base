@@ -27,8 +27,13 @@ def normalize_query_arg_value(val) -> str:
 
     norm_val = None
 
-    if type(val) == int:
-        norm_val = val
+    if isinstance(val, bool):
+        # bool is a subclass of int; normalize to its textual form ("True"/"False").
+        norm_val = str(val)
+    elif isinstance(val, (int, float)):
+        # Numbers carry no URL-special characters; render as a plain string instead
+        # of passing a non-str/non-bytes value to urllib.parse.quote (TypeError).
+        norm_val = str(val)
     else:
         norm_val = urllib.parse.quote(val)
 

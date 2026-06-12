@@ -37,7 +37,7 @@ For local development:
 .. code-block:: bash
 
    ./repository-setup/rehome-repository
-   ./development/setup-envrionment
+   ./development/setup-environment
 
 Running Tests
 =============
