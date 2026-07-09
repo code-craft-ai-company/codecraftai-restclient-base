@@ -146,7 +146,8 @@ class RestClientBase:
         session = Session()
         session.verify = self._verify_certificate
 
-        resp: Response = session.post(auth_url, headers=headers, verify=self._verify_certificate)
+        auth_timeouts = (self._aspects.connection_timeout, self._aspects.inactivity_timeout)
+        resp: Response = session.post(url=auth_url, headers=headers, verify=self._verify_certificate, timeout=auth_timeouts)
         if resp.status_code != HTTPStatus.OK:
             errmsg_lines = [
                 f"Error attempting to authenticate on url={auth_url}.",
@@ -280,7 +281,7 @@ class RestClientBase:
                 session: Session = self._get_session(aspects)
 
                 
-                req = Request(method=method, url=call_url, headers=headers, params=params, data=body)
+                req = Request(method=method, url=call_url, headers=headers, params=params, json=body)
                 prepared_req = session.prepare_request(req)
                 
                 resp :Response = session.send(prepared_req, timeout=send_timeouts, verify=self._verify_certificate)
@@ -355,7 +356,7 @@ class RestClientBase:
                 session: Session = self._get_session(aspects)
 
                 req = Request(method=method, url=call_url, headers=headers,
-                             params=params, data=body)
+                             params=params, json=body)
                 prepared_req = session.prepare_request(req)
 
                 resp: Response = session.send(
@@ -445,7 +446,7 @@ class RestClientBase:
                 session: Session = self._get_session(aspects)
 
                 req = Request(method=method, url=call_url, headers=headers,
-                             params=params, data=body)
+                             params=params, json=body)
                 prepared_req = session.prepare_request(req)
 
                 resp: Response = session.send(
@@ -515,7 +516,7 @@ class RestClientBase:
                 session: Session = self._get_session(aspects)
 
                 req = Request(method=method, url=call_url, headers=headers,
-                             params=params, data=body)
+                             params=params, json=body)
                 prepared_req = session.prepare_request(req)
 
                 resp: Response = session.send(
@@ -609,7 +610,7 @@ class RestClientBase:
                 session: Session = self._get_session(aspects)
 
                 req = Request(method=method, url=call_url, headers=headers,
-                             params=params, data=body)
+                             params=params, json=body)
                 prepared_req = session.prepare_request(req)
 
                 resp: Response = session.send(
