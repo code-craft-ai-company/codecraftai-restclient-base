@@ -880,40 +880,57 @@ class RestClientGenerator:
         """
         lines: List[str] = []
         schema_info = op.response_schema_info
-        
+
+        # A success status can legitimately carry no content (204/205, or an empty
+        # 202 "Accepted"). Guard resp.json() so those return None instead of raising
+        # on an empty body; any other status still parses, so an unexpected-empty 200
+        # surfaces as an error rather than being silently masked.
+        no_content_guard = "resp.status_code in (204, 205) or (resp.status_code == 202 and len(resp.content) == 0)"
+
         if not schema_info:
-            lines.append("        return resp.json()")
+            lines.append(f"        if {no_content_guard}:")
+            lines.append("            rtnval = None")
+            lines.append("        else:")
+            lines.append("            rtnval = resp.json()")
+            lines.append("        return rtnval")
             return lines
-        
+
         if schema_info.get("type") == "list":
             item_schema = schema_info.get("item_schema", {})
             item_type = self._schema_to_type(item_schema)
-            
+
             lines.append("        raw_data = resp.json()")
             lines.append(f"        items = [self._parse_item(item, {item_type}) for item in raw_data]")
-            
+
             if self._is_paginated_operation(op):
                 pagedlist_type_name = self.PAGEDLIST_TYPE.__name__
                 lines.append(f"        rtnval = {pagedlist_type_name}[{item_type}](items, dict(resp.headers), raw_data)")
                 lines.append("        return rtnval")
             else:
                 lines.append("        return items")
-        
+
         elif schema_info.get("type") == "single":
             schema = schema_info.get("schema", {})
             data_type = self._schema_to_type(schema)
-            
+
             # Check if this is a custom SchemaObject type (has $ref) or primitive
             if "$ref" in schema:
                 # Custom type with from_dict method
-                lines.append("        raw_data = resp.json()")
-                lines.append(f"        rtnobj = {data_type}.from_dict(raw_data)")
+                lines.append(f"        if {no_content_guard}:")
+                lines.append("            rtnobj = None")
+                lines.append("        else:")
+                lines.append("            raw_data = resp.json()")
+                lines.append(f"            rtnobj = {data_type}.from_dict(raw_data)")
                 lines.append("        return rtnobj")
             else:
                 # Primitive type or Dict[str, Any] - return directly or use _parse_item
-                lines.append("        raw_data = resp.json()")
-                lines.append(f"        return self._parse_item(raw_data, {data_type})")
-        
+                lines.append(f"        if {no_content_guard}:")
+                lines.append("            rtnval = None")
+                lines.append("        else:")
+                lines.append("            raw_data = resp.json()")
+                lines.append(f"            rtnval = self._parse_item(raw_data, {data_type})")
+                lines.append("        return rtnval")
+
         return lines
 
     def _generate_schema_modules(self, schemas_dir: Path):
