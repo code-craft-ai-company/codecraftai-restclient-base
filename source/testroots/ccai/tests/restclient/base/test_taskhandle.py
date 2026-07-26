@@ -18,7 +18,8 @@ import unittest
 from typing import List, Optional
 from unittest.mock import MagicMock, patch
 
-from hypothesis import given, settings, strategies as st
+from ccai.testbase.properties import given
+from ccai.testbase.properties import strategies as st
 
 from ccai.errors.exceptions import SemanticError
 
@@ -345,8 +346,8 @@ _non_terminal_state_strategy = st.sampled_from(
 
 class TestTaskHandleProperties(unittest.TestCase):
 
-    @settings(max_examples=50, deadline=None)
     @given(
+    constraints={"max_examples": 50},
         prefix=st.lists(_non_terminal_state_strategy, min_size=0, max_size=20),
         terminal=_terminal_state_strategy,
     )
@@ -386,8 +387,7 @@ class TestTaskHandleProperties(unittest.TestCase):
         self.assertEqual(session.get.call_count, len(states))
         return
 
-    @settings(max_examples=20, deadline=None)
-    @given(non_terminal_count=st.integers(min_value=1, max_value=10))
+    @given(non_terminal_count=st.integers(min_value=1, max_value=10), constraints={"max_examples": 20})
     def test_wait_times_out_on_all_non_terminal_sequence(
         self, non_terminal_count: int
     ) -> None:
@@ -423,8 +423,8 @@ class TestTaskHandleProperties(unittest.TestCase):
         self.assertEqual(handle._last_observed_state, TaskState.RUNNING)
         return
 
-    @settings(max_examples=30, deadline=None)
     @given(
+    constraints={"max_examples": 30},
         running_then_terminal=st.lists(
             _non_terminal_state_strategy, min_size=0, max_size=5
         ),

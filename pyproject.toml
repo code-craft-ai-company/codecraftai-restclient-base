@@ -25,7 +25,6 @@ codecraftai-credentials = { git = "https://github.com/automationmojo/codecraftai
 
 
 [tool.poetry.group.dev.dependencies]
-hypothesis = ">=6.0.0"
 codecraftai-testbase = { git = "https://github.com/automationmojo/codecraftai-testbase.git", branch = "main" }
 
 [build-system]
