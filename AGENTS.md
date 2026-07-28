@@ -61,8 +61,12 @@ The code structure of this repository follows the [Code Organization](userguide/
 
 Remember to make the test hierarchy match the source hierarchy when adding test files.  For example:
 
-File to test: 'source/packages/ccai/interop/protocols/dns/dnsquestion.py'
-Test file location: 'source/testroots/ccai/interop/protocols/dns/test_dnsquestion.py'
+File to test: 'source/packages/ccai/restclient/base/restclientbase.py'
+Test file location: 'source/testroots/ccai/tests/restclient/base/test_restclientbase.py'
+
+Note this repository's testroot has NO 'testbase' path segment — tests live at
+'source/testroots/ccai/tests/restclient/base', unlike the venue restclients
+which use 'source/testroots/testbase/ccai/tests/restclient/<venue>'.
 
 # Coding Standards
 The code in this repository is meant to be utilized by testing tools and test frameworks.  Therefore, the code must prioritize:
