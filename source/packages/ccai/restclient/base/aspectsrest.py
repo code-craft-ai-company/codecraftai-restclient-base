@@ -21,6 +21,8 @@ from enum import IntEnum
 
 from requests import Session
 
+from ccai.aspects.aspects import Aspects as AspectsBase
+
 class ActionPattern(IntEnum):
     """
         An action pattern to use when using aspects to change the behavior of an API.
@@ -62,7 +64,7 @@ DEFAULT_MUST_CONNECT = False
 DEFAULT_ALLOWED_ERROR_CODES: Tuple[int, ...] = ()
 
 
-class AspectsRest:
+class AspectsRest(AspectsBase):
     """
         Aspects container specialized for REST operations.
     """
@@ -98,10 +100,10 @@ class AspectsRest:
         """
         object.__setattr__(self, "__frozen__", False)
         
+        super().__init__(completion_interval=completion_interval, completion_timeout=completion_timeout,
+                         connection_timeout=connection_timeout)
+
         self.action_pattern=action_pattern
-        self.completion_timeout=completion_timeout
-        self.completion_interval=completion_interval
-        self.connection_timeout=connection_timeout
         self.inactivity_timeout=inactivity_timeout
         self.monitor_delay=monitor_delay
         self.logging_pattern=logging_pattern
@@ -112,17 +114,9 @@ class AspectsRest:
         self.logger=logger
         self.session = session
 
-        object.__setattr__(self, "__frozen__", True)
+        self.freeze()
         return
 
-    def __setattr__(self, name, value):
-        # If the '__frozen__' flag exists and is True, block all changes
-        if getattr(self, "__frozen__", False):
-            raise AttributeError(f"Aspects objects cannot be modified after initialization. name={name}")
-        
-        # Otherwise, allow the assignment
-        object.__setattr__(self, name, value)
-        return
 
 
 DEFAULT_REST_ASPECTS = AspectsRest()
