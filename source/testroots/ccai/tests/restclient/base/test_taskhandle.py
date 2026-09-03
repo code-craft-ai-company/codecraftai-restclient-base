@@ -18,6 +18,8 @@ import unittest
 from typing import List, Optional
 from unittest.mock import MagicMock, patch
 
+from ccai import testbase
+
 from ccai.testbase.properties import given
 from ccai.testbase.properties import strategies as st
 
@@ -344,120 +346,119 @@ _non_terminal_state_strategy = st.sampled_from(
 )
 
 
-class TestTaskHandleProperties(unittest.TestCase):
+# Module-level on purpose: the testbase sequencer collects module-level
+# ``test_*`` and drives ``@given`` from the metadata the decorator records.
+# A @given-decorated TestCase *method* never receives its generated
+# arguments, so it cannot run at all.
 
-    @given(
-    constraints={"max_examples": 50},
-        prefix=st.lists(_non_terminal_state_strategy, min_size=0, max_size=20),
-        terminal=_terminal_state_strategy,
+
+@given(
+constraints={"max_examples": 50},
+    prefix=st.lists(_non_terminal_state_strategy, min_size=0, max_size=20),
+    terminal=_terminal_state_strategy,
+)
+def test_wait_converges_on_first_terminal(prefix: List[TaskState], terminal: TaskState
+) -> None:
+    """
+        For any sequence of non-terminal states followed by a
+        terminal one, :meth:`TaskHandle.wait` SHALL converge on the
+        first terminal state, return a :class:`TaskResult` with
+        ``state == terminal``, and report :meth:`is_done` ``True``
+        thereafter.
+    """
+    states = list(prefix) + [terminal]
+    session = _make_status_session(states)
+    client = _ClientStub(session=session)
+    handle = TaskHandle(
+        task_id="prop",
+        client=client,
+        status_url="https://host/status",
+        cancel_url=None,
+        state_extractor=_state_extractor,
     )
-    def test_wait_converges_on_first_terminal(
-        self, prefix: List[TaskState], terminal: TaskState
-    ) -> None:
-        """
-            For any sequence of non-terminal states followed by a
-            terminal one, :meth:`TaskHandle.wait` SHALL converge on the
-            first terminal state, return a :class:`TaskResult` with
-            ``state == terminal``, and report :meth:`is_done` ``True``
-            thereafter.
-        """
-        states = list(prefix) + [terminal]
-        session = _make_status_session(states)
-        client = _ClientStub(session=session)
-        handle = TaskHandle(
-            task_id="prop",
-            client=client,
-            status_url="https://host/status",
-            cancel_url=None,
-            state_extractor=_state_extractor,
-        )
-        aspects = AspectsRest(
-            completion_interval=0.0001, completion_timeout=1000
-        )
-
-        with patch(
-            "ccai.restclient.base.taskhandle.time.sleep", return_value=None
-        ):
-            result = handle.wait(aspects=aspects)
-
-        self.assertEqual(result.state, terminal)
-        self.assertEqual(result.task_id, "prop")
-        self.assertTrue(handle.is_done())
-        self.assertIn(handle._last_observed_state, TERMINAL_STATES)
-        self.assertEqual(session.get.call_count, len(states))
-        return
-
-    @given(non_terminal_count=st.integers(min_value=1, max_value=10), constraints={"max_examples": 20})
-    def test_wait_times_out_on_all_non_terminal_sequence(
-        self, non_terminal_count: int
-    ) -> None:
-        """
-            When no terminal state appears in the observed sequence the
-            wait loop SHALL raise :class:`TimeoutError` once the
-            monotonic clock crosses the deadline.
-        """
-        states = [TaskState.RUNNING] * non_terminal_count
-        session = _make_status_session(states)
-        client = _ClientStub(session=session)
-        handle = TaskHandle(
-            task_id="never",
-            client=client,
-            status_url="https://host/status",
-            cancel_url=None,
-            state_extractor=_state_extractor,
-        )
-        aspects = AspectsRest(completion_interval=1, completion_timeout=1)
-
-        # Fake clock starts at 0, then immediately jumps past the
-        # deadline on the next read.
-        clock_values = iter([0.0] + [10.0] * (non_terminal_count + 5))
-        with patch(
-            "ccai.restclient.base.taskhandle.time.sleep", return_value=None
-        ), patch(
-            "ccai.restclient.base.taskhandle.time.monotonic",
-            side_effect=lambda: next(clock_values),
-        ):
-            with self.assertRaises(TimeoutError):
-                handle.wait(aspects=aspects)
-
-        self.assertEqual(handle._last_observed_state, TaskState.RUNNING)
-        return
-
-    @given(
-    constraints={"max_examples": 30},
-        running_then_terminal=st.lists(
-            _non_terminal_state_strategy, min_size=0, max_size=5
-        ),
-        terminal=_terminal_state_strategy,
+    aspects = AspectsRest(
+        completion_interval=0.0001, completion_timeout=1000
     )
-    def test_is_done_matches_terminal_set_after_wait(
-        self, running_then_terminal: List[TaskState], terminal: TaskState
-    ) -> None:
-        """
-            After a successful wait :meth:`is_done` SHALL be ``True``
-            iff the last observed state is in :data:`TERMINAL_STATES`.
-        """
-        states = list(running_then_terminal) + [terminal]
-        session = _make_status_session(states)
-        handle = TaskHandle(
-            task_id="prop2",
-            client=_ClientStub(session=session),
-            status_url="https://host/status",
-            cancel_url=None,
-            state_extractor=_state_extractor,
-        )
-        aspects = AspectsRest(completion_interval=0.0001, completion_timeout=1000)
 
-        with patch(
-            "ccai.restclient.base.taskhandle.time.sleep", return_value=None
-        ):
+    with patch(
+        "ccai.restclient.base.taskhandle.time.sleep", return_value=None
+    ):
+        result = handle.wait(aspects=aspects)
+
+    assert result.state == terminal
+    assert result.task_id == "prop"
+    assert handle.is_done()
+    assert handle._last_observed_state in TERMINAL_STATES
+    assert session.get.call_count == len(states)
+    return
+
+@given(non_terminal_count=st.integers(min_value=1, max_value=10), constraints={"max_examples": 20})
+def test_wait_times_out_on_all_non_terminal_sequence(non_terminal_count: int
+) -> None:
+    """
+        When no terminal state appears in the observed sequence the
+        wait loop SHALL raise :class:`TimeoutError` once the
+        monotonic clock crosses the deadline.
+    """
+    states = [TaskState.RUNNING] * non_terminal_count
+    session = _make_status_session(states)
+    client = _ClientStub(session=session)
+    handle = TaskHandle(
+        task_id="never",
+        client=client,
+        status_url="https://host/status",
+        cancel_url=None,
+        state_extractor=_state_extractor,
+    )
+    aspects = AspectsRest(completion_interval=1, completion_timeout=1)
+
+    # Fake clock starts at 0, then immediately jumps past the
+    # deadline on the next read.
+    clock_values = iter([0.0] + [10.0] * (non_terminal_count + 5))
+    with patch(
+        "ccai.restclient.base.taskhandle.time.sleep", return_value=None
+    ), patch(
+        "ccai.restclient.base.taskhandle.time.monotonic",
+        side_effect=lambda: next(clock_values),
+    ):
+        with testbase.raises(TimeoutError):
             handle.wait(aspects=aspects)
 
-        self.assertEqual(
-            handle.is_done(),
-            handle._last_observed_state in TERMINAL_STATES,
-        )
-        return
+    assert handle._last_observed_state == TaskState.RUNNING
+    return
+
+@given(
+constraints={"max_examples": 30},
+    running_then_terminal=st.lists(
+        _non_terminal_state_strategy, min_size=0, max_size=5
+    ),
+    terminal=_terminal_state_strategy,
+)
+def test_is_done_matches_terminal_set_after_wait(running_then_terminal: List[TaskState], terminal: TaskState
+) -> None:
+    """
+        After a successful wait :meth:`is_done` SHALL be ``True``
+        iff the last observed state is in :data:`TERMINAL_STATES`.
+    """
+    states = list(running_then_terminal) + [terminal]
+    session = _make_status_session(states)
+    handle = TaskHandle(
+        task_id="prop2",
+        client=_ClientStub(session=session),
+        status_url="https://host/status",
+        cancel_url=None,
+        state_extractor=_state_extractor,
+    )
+    aspects = AspectsRest(completion_interval=0.0001, completion_timeout=1000)
+
+    with patch(
+        "ccai.restclient.base.taskhandle.time.sleep", return_value=None
+    ):
+        handle.wait(aspects=aspects)
+
+    assert (handle.is_done()
+            == (handle._last_observed_state in TERMINAL_STATES))
+    return
 
 
 class TestFetchStatusTimeout(unittest.TestCase):
