@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "codecraftai-restclient-base"
 description = "Code Craft AI - Rest Client Base"
-version = "1.0.2"
+version = "1.0.3"
 authors = ["Myron Walker <myron.walker@gmail.com>"]
 readme = "README.rst"
 license = "LicenseRef-CodeCraftAI-Dual-License"
