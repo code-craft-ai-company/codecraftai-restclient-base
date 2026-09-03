@@ -21,9 +21,10 @@ class _AsDict:
         return {"value": self._value}
 
 
-def test_normalize_query_arg_value_int_is_passthrough():
+def test_normalize_query_arg_value_int_renders_as_string():
+    # Numbers are rendered as text so the result can always be placed in a query string.
     result = normalize_query_arg_value(42)
-    testbase.assert_equal(result, 42)
+    testbase.assert_equal(result, "42")
     return
 
 
