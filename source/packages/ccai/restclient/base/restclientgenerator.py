@@ -9,6 +9,7 @@
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 import argparse
+import ast
 import json
 import keyword
 import re
@@ -615,7 +616,34 @@ class RestClientGenerator:
     def _generate_client_module(self, sorted_groups: List[str], clients_root: Path):
         client_filename = f"{self._client_class_name.lower()}.py"
         client_file = clients_root / client_filename
-        lines: List[str] = [AUTO_GENERATED_BANNER]
+
+        # Generate the class body first so the imports can be limited to the names it references.
+        body_lines: List[str] = []
+        base_class_name = self.REST_CLIENT_BASE_CLASS.__name__
+        body_lines.append(f"class {self._client_class_name}({base_class_name}):")
+        body_lines.append('    """')
+        body_lines.append("        GitHub public REST API client generated from the OpenAPI specification.")
+        body_lines.append("    \"\"\"")
+        aspects_type_name = self.ASPECTS_TYPE.__name__
+        body_lines.append(f"    def __init__(self, host: str, credential: BaseCredential, port: Optional[int] = None, scheme: Optional[str] = \"https\", aspects: {aspects_type_name} = DEFAULT_REST_ASPECTS):")
+        body_lines.append("        super().__init__(host, credential, port, scheme=scheme, aspects=aspects)")
+
+        for group in sorted_groups:
+            gclass = f"{self._safe_pascal(group)}ApiGroup"
+            attr_name = f"_grp_{self._safe_snake(group)}"
+            body_lines.append(f"        self.{attr_name} = {gclass}(self)")
+        body_lines.append("        return")
+        body_lines.append("")
+
+        for group in sorted_groups:
+            gclass = f"{self._safe_pascal(group)}ApiGroup"
+            attr_name = f"_grp_{self._safe_snake(group)}"
+            prop_name = self._safe_snake(group)
+            body_lines.append("    @property")
+            body_lines.append(f"    def {prop_name}(self) -> {gclass}:")
+            body_lines.append(f"        return self.{attr_name}")
+            body_lines.append("")
+
         typing_imports = ["from typing import Optional"]
         module_imports = ["import weakref"]
         native_from_imports: List[str] = []
@@ -631,39 +659,19 @@ class RestClientGenerator:
             gmodule = f"{self.GROUP_MODULE_ROOT}.{self._file_slug(group)}"
             local_imports.append(f"from {gmodule} import {gclass}")
 
+        body_text = "\n".join(body_lines)
+
+        lines: List[str] = [AUTO_GENERATED_BANNER]
         lines.extend(self._format_import_sections([
             typing_imports,
             module_imports,
             native_from_imports,
             third_party_imports,
             local_imports,
-        ]))
+        ], body_text=body_text))
         lines.append("")
         lines.append("")
-        base_class_name = self.REST_CLIENT_BASE_CLASS.__name__
-        lines.append(f"class {self._client_class_name}({base_class_name}):")
-        lines.append('    """')
-        lines.append("        GitHub public REST API client generated from the OpenAPI specification.")
-        lines.append("    \"\"\"")
-        aspects_type_name = self.ASPECTS_TYPE.__name__
-        lines.append(f"    def __init__(self, host: str, credential: BaseCredential, port: Optional[int] = None, scheme: Optional[str] = \"https\", aspects: {aspects_type_name} = DEFAULT_REST_ASPECTS):")
-        lines.append("        super().__init__(host, credential, port, scheme=scheme, aspects=aspects)")
-
-        for group in sorted_groups:
-            gclass = f"{self._safe_pascal(group)}ApiGroup"
-            attr_name = f"_grp_{self._safe_snake(group)}"
-            lines.append(f"        self.{attr_name} = {gclass}(self)")
-        lines.append("        return")
-        lines.append("")
-
-        for group in sorted_groups:
-            gclass = f"{self._safe_pascal(group)}ApiGroup"
-            attr_name = f"_grp_{self._safe_snake(group)}"
-            prop_name = self._safe_snake(group)
-            lines.append("    @property")
-            lines.append(f"    def {prop_name}(self) -> {gclass}:")
-            lines.append(f"        return self.{attr_name}")
-            lines.append("")
+        lines.extend(body_lines)
 
         content = "\n".join(lines).rstrip() + "\n"
         self._write_file(client_file, content)
@@ -695,6 +703,22 @@ class RestClientGenerator:
                 if body_schema:
                     self._collect_schema_types_from_schema(body_schema, used_types)
         
+        # Generate the class body first so the imports can be limited to the names it references.
+        body_lines: List[str] = []
+        group_base_name = self.GROUP_BASE_TYPE.__name__
+        body_lines.append(f"class {class_name}({group_base_name}):")
+        tag_desc = self._tag_catalog.get(group, "")
+        if tag_desc:
+            body_lines.append("    \"\"\"")
+            body_lines.append(f"        {literal_text(tag_desc)}")
+            body_lines.append("    \"\"\"")
+
+        for op in ops:
+            method_lines = self._generate_method_signature_and_body(op, group)
+            body_lines.extend(method_lines)
+
+        body_text = "\n".join(body_lines)
+
         # Generate imports
         module_lines: List[str] = [AUTO_GENERATED_BANNER]
         typing_imports = ["from typing import Any, Dict, List, Optional, Union"]
@@ -719,20 +743,10 @@ class RestClientGenerator:
             native_from_imports,
             third_party_imports,
             local_imports,
-        ]))
+        ], body_text=body_text))
         module_lines.append("")
         module_lines.append("")
-        group_base_name = self.GROUP_BASE_TYPE.__name__
-        module_lines.append(f"class {class_name}({group_base_name}):")
-        tag_desc = self._tag_catalog.get(group, "")
-        if tag_desc:
-            module_lines.append("    \"\"\"")
-            module_lines.append(f"        {literal_text(tag_desc)}")
-            module_lines.append("    \"\"\"")
-
-        for op in ops:
-            method_lines = self._generate_method_signature_and_body(op, group)
-            module_lines.extend(method_lines)
+        module_lines.extend(body_lines)
 
         content = "\n".join(module_lines).rstrip() + "\n"
         out_path = groups_dir / f"{slug}.py"
@@ -989,6 +1003,19 @@ class RestClientGenerator:
                     out_path.unlink()
                 continue
 
+            # Generate schema classes for this file first so the imports can be limited to the names they reference.
+            body_lines: List[str] = []
+            ordered_schemas = self._order_schema_definitions(emit_schemas)
+            for schema_name, type_spec in ordered_schemas:
+                class_lines = class_lines_by_type.get(type_spec.name, [])
+                if not class_lines:
+                    continue
+                body_lines.extend(class_lines)
+                body_lines.append("")
+                body_lines.append("")
+
+            body_text = "\n".join(body_lines)
+
             module_lines: List[str] = [AUTO_GENERATED_BANNER]
             module_lines.append("from __future__ import annotations")
             module_lines.append("")
@@ -1006,20 +1033,11 @@ class RestClientGenerator:
                 native_from_imports,
                 third_party_imports,
                 local_imports,
-            ]))
+            ], body_text=body_text))
             module_lines.append("")
             module_lines.append("")
-            
-            # Generate schema classes for this file
-            ordered_schemas = self._order_schema_definitions(emit_schemas)
-            for schema_name, type_spec in ordered_schemas:
-                class_lines = class_lines_by_type.get(type_spec.name, [])
-                if not class_lines:
-                    continue
-                module_lines.extend(class_lines)
-                module_lines.append("")
-                module_lines.append("")
-            
+            module_lines.extend(body_lines)
+
             content = "\n".join(module_lines).rstrip() + "\n"
             self._write_file(out_path, content)
         return
@@ -1442,12 +1460,24 @@ class RestClientGenerator:
         path.write_text(content, encoding="utf-8")
         return
 
-    def _format_import_sections(self, sections: List[List[str]]) -> List[str]:
+    def _format_import_sections(self, sections: List[List[str]], body_text: Optional[str] = None) -> List[str]:
         """
             Format import sections in order and sort each section alphabetically.
+
+            :param sections: The import sections, each a list of import statements.
+            :param body_text: The text of the module body the imports are for.  When provided, names that the body
+                              does not reference are dropped so the generated module has no unused imports.
+
+            :returns: The formatted import lines.
         """
+        referenced_names = None
+        if body_text is not None:
+            referenced_names = self._referenced_names(body_text)
+
         lines: List[str] = []
         for section in sections:
+            if referenced_names is not None:
+                section = self._prune_import_statements(section, referenced_names)
             if not section:
                 continue
             lines.extend(sorted(section))
@@ -1455,6 +1485,71 @@ class RestClientGenerator:
         if lines:
             lines.pop()
         return lines
+
+    def _prune_import_statements(self, statements: List[str], referenced_names: set) -> List[str]:
+        """
+            Removes the imported names that are not in 'referenced_names' from a list of import statements.  A
+            statement that no longer imports any name is dropped.
+
+            :param statements: Import statements of the form 'import x' or 'from x import a, b'.
+            :param referenced_names: The names referenced by the module body.
+
+            :returns: The pruned import statements.
+        """
+        pruned: List[str] = []
+        for statement in statements:
+            if statement.startswith("from "):
+                module_part, _, names_part = statement.partition(" import ")
+                kept_names = []
+                for name in names_part.split(","):
+                    name = name.strip()
+                    bound_name = name.split(" as ")[-1].strip()
+                    if bound_name in referenced_names:
+                        kept_names.append(name)
+                if len(kept_names) > 0:
+                    pruned.append(f"{module_part} import {', '.join(kept_names)}")
+            else:
+                module_name = statement[len("import "):].strip()
+                bound_name = module_name.split(" as ")[-1].strip().split(".")[0]
+                if bound_name in referenced_names:
+                    pruned.append(statement)
+        return pruned
+
+    def _referenced_names(self, body_text: str) -> set:
+        """
+            Collects the names referenced by generated module code, including names used inside string
+            annotations (forward references).
+
+            :param body_text: The generated module body.
+
+            :returns: The set of referenced names.
+        """
+        referenced_names = set()
+        tree = ast.parse(body_text)
+
+        annotations = []
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Name):
+                referenced_names.add(node.id)
+            elif isinstance(node, ast.arg) and node.annotation is not None:
+                annotations.append(node.annotation)
+            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.returns is not None:
+                annotations.append(node.returns)
+            elif isinstance(node, ast.AnnAssign):
+                annotations.append(node.annotation)
+
+        for annotation in annotations:
+            for node in ast.walk(annotation):
+                if isinstance(node, ast.Constant) and isinstance(node.value, str):
+                    try:
+                        annotation_tree = ast.parse(node.value, mode="eval")
+                    except SyntaxError:
+                        continue
+                    for sub_node in ast.walk(annotation_tree):
+                        if isinstance(sub_node, ast.Name):
+                            referenced_names.add(sub_node.id)
+
+        return referenced_names
 
     def _write_schemas_init(self, schemas_dir: Path):
         """

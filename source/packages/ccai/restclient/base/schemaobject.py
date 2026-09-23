@@ -8,3 +8,5 @@
 """
 
 from ccai.interfaces.schemaobject import SchemaObject, SchemaObjectMeta
+
+__all__ = ["SchemaObject", "SchemaObjectMeta"]
